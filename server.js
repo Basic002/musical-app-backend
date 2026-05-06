@@ -1,14 +1,14 @@
-import 'dotenv/config'; 
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import connectDB from './config/mongoDB.js'; 
-import router from './routes/index.js'; // Le routeur principal est importé ici
+import connectDB from './config/mongoDB.js';
+import router from './routes/index.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Connexion à la base de données
-// connectDB();
+connectDB();
 
 // Middlewares
 app.use(cors());
