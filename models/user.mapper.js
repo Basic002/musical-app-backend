@@ -4,7 +4,7 @@ import userSchema from '../schemas/user.schema.js';
 
 class UserMapper extends CoreMapper {
     constructor() {
-        super(mongoose); 
+        super(mongoose);
         this.model = this.mongoose.model('User', userSchema);
     }
 

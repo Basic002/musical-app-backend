@@ -2,34 +2,42 @@ import * as authServices from './auth.services.js';
 
 export const testAuth = (req, res) => {
   try {
-    const result = authServices.testAuthService();
-    res.status(200).json(result);
+    res.status(200).json({ message: "Route de test auth OK" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Erreur interne du serveur" });
   }
 };
 
-export const register = (req, res) => {
+export const register = async (req, res) => {
   try {
-    const userData = req.body; // On récupère les infos envoyées par le front
-    const result = authServices.registerUser(userData);
-    res.status(201).json(result); // Créé avec succès
+    const userData = req.body;
+
+    const result = await authServices.registerService(userData);
+
+    if (result.success) {
+      res.status(201).json(result);
+    } else {
+      res.status(400).json(result);
+    }
   } catch (error) {
+    console.error("Erreur Controller Register:", error);
     res.status(500).json({ success: false, message: "Erreur interne du serveur" });
   }
 };
 
-export const login = (req, res) => {
+export const login = async (req, res) => {
   try {
     const credentials = req.body;
-    const result = authServices.loginUser(credentials);
-    
+
+    const result = await authServices.loginService(credentials);
+
     if (result.success) {
       res.status(200).json(result);
     } else {
       res.status(401).json(result);
     }
   } catch (error) {
+    console.error("Erreur Controller Login:", error);
     res.status(500).json({ success: false, message: "Erreur interne du serveur" });
   }
 };

@@ -1,14 +1,48 @@
-export const registerUser = (userData) => {
-  console.log("Service Auth : Demande d'inscription reçue", userData);
-  // Plus tard : on vérifiera si l'email existe déjà, on hachera le mot de passe, et on sauvera en BDD.
-  return { success: true, message: "Utilisateur créé avec succès (Simulation)" };
+import { mapper } from '../../models/index.mapper.js';
+
+export const registerService = async (userData) => {
+  try {
+    const existingUser = await mapper.user.findByEmail(userData.email);
+    if (existingUser) {
+      return { success: false, message: "Cet email est déjà utilisé." };
+    }
+    const newUser = await mapper.user.create(userData);
+
+    return {
+      success: true,
+      message: "Utilisateur créé avec succès !",
+      user: newUser
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      message: "Erreur lors de la création : " + error.message
+    };
+  }
 };
 
-export const loginUser = (credentials) => {
-  console.log("Service Auth : Tentative de connexion pour", credentials?.email);
-  // Plus tard : on cherchera l'utilisateur en BDD, on vérifiera le mot de passe, et on générera un vrai token JWT.
-  if (credentials?.email && credentials?.password) {
-    return { success: true, token: "faux_token_jwt_12345", message: "Connexion réussie" };
+export const loginService = async (userData) => {
+  try {
+    const user = await mapper.user.findByEmail(userData.email);
+
+    if (!user) {
+      return { success: false, message: "Utilisateur introuvable." };
+    }
+
+    if (user.password !== userData.password) {
+      return { success: false, message: "Mot de passe incorrect." };
+    }
+
+    return {
+      success: true,
+      message: "Connexion réussie !",
+      user: user
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Erreur lors de la connexion : " + error.message
+    };
   }
-  return { success: false, message: "Email ou mot de passe manquant" };
 };
