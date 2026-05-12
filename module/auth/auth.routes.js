@@ -3,11 +3,13 @@ import * as authControllers from './auth.controllers.js';
 
 const router = express.Router();
 
-// Route GET testable dans le navigateur
-router.get('/test', authControllers.testAuth);
-
-// Routes POST (à tester sur Postman)
+// Créer un compte
 router.post('/register', authControllers.register);
+
+// Se connecter (crée la session)
 router.post('/login', authControllers.login);
+
+// Se déconnecter (détruit la session)
+router.post('/logout', authControllers.logout);
 
 export default router;

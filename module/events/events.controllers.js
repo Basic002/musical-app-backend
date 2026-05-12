@@ -1,29 +1,45 @@
 import * as eventsServices from './events.services.js';
 
-export const testEvents = (req, res) => {
+export const getAllEvents = async (req, res) => {
     try {
-        const result = eventsServices.testEventsService();
+        const result = await eventsServices.getAllEventsService();
         res.status(200).json(result);
     } catch (error) {
+        console.error("Erreur Controller getAllEvents:", error);
         res.status(500).json({ success: false, message: "Erreur interne du serveur" });
     }
 };
 
-export const getAll = (req, res) => {
+export const createEvent = async (req, res) => {
     try {
-        const result = eventsServices.getAllEvents();
-        res.status(200).json(result);
+        const eventData = req.body;
+        const result = await eventsServices.createEventService(eventData);
+        res.status(201).json(result);
     } catch (error) {
+        console.error("Erreur Controller createEvent:", error);
         res.status(500).json({ success: false, message: "Erreur interne du serveur" });
     }
 };
 
-export const getById = (req, res) => {
+export const updateEvent = async (req, res) => {
     try {
-        const eventId = req.params.id; // On récupère l'ID depuis l'URL
-        const result = eventsServices.getEventById(eventId);
+        const eventId = req.params.id;
+        const eventData = req.body;
+        const result = await eventsServices.updateEventService(eventId, eventData);
         res.status(200).json(result);
     } catch (error) {
+        console.error("Erreur Controller updateEvent:", error);
+        res.status(500).json({ success: false, message: "Erreur interne du serveur" });
+    }
+};
+
+export const deleteEvent = async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const result = await eventsServices.deleteEventService(eventId);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Erreur Controller deleteEvent:", error);
         res.status(500).json({ success: false, message: "Erreur interne du serveur" });
     }
 };

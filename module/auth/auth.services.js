@@ -6,7 +6,12 @@ export const registerService = async (userData) => {
     if (existingUser) {
       return { success: false, message: "Cet email est déjà utilisé." };
     }
+
     const newUser = await mapper.user.create(userData);
+
+    if (!newUser) {
+      return { success: false, message: "Échec de la création de l'utilisateur en base de données." };
+    }
 
     return {
       success: true,
@@ -15,34 +20,18 @@ export const registerService = async (userData) => {
     };
 
   } catch (error) {
-    return {
-      success: false,
-      message: "Erreur lors de la création : " + error.message
-    };
+    return { success: false, message: "Erreur lors de la création : " + error.message };
   }
 };
 
 export const loginService = async (userData) => {
   try {
     const user = await mapper.user.findByEmail(userData.email);
-
-    if (!user) {
-      return { success: false, message: "Utilisateur introuvable." };
+    if (!user || user.password !== userData.password) {
+      return { success: false, message: "Identifiants incorrects." };
     }
-
-    if (user.password !== userData.password) {
-      return { success: false, message: "Mot de passe incorrect." };
-    }
-
-    return {
-      success: true,
-      message: "Connexion réussie !",
-      user: user
-    };
+    return { success: true, user };
   } catch (error) {
-    return {
-      success: false,
-      message: "Erreur lors de la connexion : " + error.message
-    };
+    return { success: false, message: "Erreur connexion : " + error.message };
   }
 };

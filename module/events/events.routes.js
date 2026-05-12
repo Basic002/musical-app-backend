@@ -3,28 +3,18 @@ import * as eventsControllers from './events.controllers.js';
 
 const router = express.Router();
 
-// Route de test en développement
-router.get('/test', eventsControllers.testEvents);
-
 // --- VISITEUR ---
-// GET - Liste des événements filtrés (/api/events)
-router.get('/', eventsControllers.getAll);
-
+// GET - Récupérer tous les événements de la BDD (/api/events)
+router.get('/', eventsControllers.getAllEvents);
 
 // --- ADMIN ---
 // POST - Créer un nouvel événement (/api/events)
-router.post('/', (req, res) => {
-    res.status(201).json({ message: "Création d'un événement (Admin)" });
-});
+router.post('/', eventsControllers.createEvent);
 
 // PUT - Modifier un événement existant (/api/events/:id)
-router.put('/:id', (req, res) => {
-    res.status(200).json({ message: `Modification de l'événement ${req.params.id} (Admin)` });
-});
+router.put('/:id', eventsControllers.updateEvent);
 
 // DELETE - Supprimer un événement (/api/events/:id)
-router.delete('/:id', (req, res) => {
-    res.status(200).json({ message: `Suppression de l'événement ${req.params.id} (Admin)` });
-});
+router.delete('/:id', eventsControllers.deleteEvent);
 
 export default router;
