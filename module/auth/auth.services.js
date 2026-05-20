@@ -3,6 +3,10 @@ import bcrypt from 'bcrypt';
 
 export const registerService = async (userData) => {
   try {
+    if (!userData.name || !userData.email || !userData.password) {
+      return { success: false, message: "Tous les champs (nom, email, mot de passe) sont obligatoires." };
+    }
+
     const existingUser = await mapper.user.findByEmail(userData.email);
     if (existingUser) return { success: false, message: "Cet email est déjà utilisé." };
 
