@@ -33,6 +33,11 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-    req.session.destroy();
-    res.status(200).json({ message: "Déconnexion réussie" });
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: "Erreur lors de la déconnexion" });
+        }
+        res.clearCookie('connect.sid'); 
+        return res.status(200).json({ success: true, message: "Déconnexion réussie" });
+    });
 };
