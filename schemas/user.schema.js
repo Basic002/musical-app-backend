@@ -24,9 +24,13 @@ const userSchema = new mongoose.Schema({
     default: 'user'
   },
   favorites: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Event'
-  }]
+    type: String,
+    default: []
+  }],
+  avatar: {
+    type: String,
+    default: ""
+  }
 }, {
   timestamps: true
 });

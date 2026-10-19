@@ -53,3 +53,28 @@ export const toggleFavorite = async (req, res) => {
         res.status(500).json({ success: false, message: "Erreur serveur" });
     }
 };
+
+export const updatePassword = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        if (!userId) return res.status(401).json({ success: false, message: "Non connecté" });
+
+        const result = await usersServices.updateUserPassword(userId, req.body);
+        res.status(result.success ? 200 : 400).json(result);
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Erreur serveur : " + error.message });
+    }
+};
+
+export const syncFavorites = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        if (!userId) return res.status(401).json({ success: false, message: "Non connecté" });
+
+        const { activeEventIds } = req.body;
+        const result = await usersServices.syncFavoritesService(userId, activeEventIds);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Erreur serveur : " + error.message });
+    }
+};
