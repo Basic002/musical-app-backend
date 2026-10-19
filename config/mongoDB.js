@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 
+// Ne jamais geler les requêtes HTTP si MongoDB est en attente ou injoignable
+mongoose.set('bufferCommands', false);
+
 const connectDB = async () => {
   if (!process.env.MONGO_URI) {
     console.warn("⚠️ MONGO_URI non définie, connexion BDD en attente...");
