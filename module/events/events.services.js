@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { mapper } from '../../models/index.mapper.js';
 
 function formatEvent(item) {
@@ -35,34 +36,36 @@ export const getEventsService = async () => {
   // 1. Événements réels en BDD MongoDB créés par les utilisateurs
   let localFormatted = [];
   try {
-    const rawLocal = await mapper.event.findAll();
-    localFormatted = rawLocal
-      .filter(doc => {
-        const e = doc.toObject ? doc.toObject() : { ...doc };
-        const hasName = Boolean(e.title || e.name);
-        const hasLocation = Boolean(e.latitude && e.longitude);
-        const hasValidUrl = e.url && typeof e.url === 'string' && e.url.startsWith('http') && e.url.length > 25 && !e.url.endsWith('ticketmaster.com');
-        const eventDateStr = e.date ? new Date(e.date).toISOString().split('T')[0] : "";
-        const isNotPast = !eventDateStr || eventDateStr >= todayStr;
-        return hasName && hasLocation && hasValidUrl && isNotPast;
-      })
-      .map((doc) => {
-        const e = doc.toObject ? doc.toObject() : { ...doc };
-        return formatEvent({
-          id: String(e._id),
-          name: e.title || e.name,
-          date: e.date ? new Date(e.date).toISOString().split('T')[0] : "À venir",
-          time: "20:00",
-          venue: e.location || "Salle Principale",
-          city: e.city || "France",
-          country: "France",
-          latitude: Number(e.latitude),
-          longitude: Number(e.longitude),
-          images: [{ url: e.image || "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=800&q=80" }],
-          url: e.url,
-          description: e.description || "Concert live ajouté par la communauté."
+    if (mongoose.connection?.readyState === 1) {
+      const rawLocal = await mapper.event.findAll();
+      localFormatted = rawLocal
+        .filter(doc => {
+          const e = doc.toObject ? doc.toObject() : { ...doc };
+          const hasName = Boolean(e.title || e.name);
+          const hasLocation = Boolean(e.latitude && e.longitude);
+          const hasValidUrl = e.url && typeof e.url === 'string' && e.url.startsWith('http') && e.url.length > 25 && !e.url.endsWith('ticketmaster.com');
+          const eventDateStr = e.date ? new Date(e.date).toISOString().split('T')[0] : "";
+          const isNotPast = !eventDateStr || eventDateStr >= todayStr;
+          return hasName && hasLocation && hasValidUrl && isNotPast;
+        })
+        .map((doc) => {
+          const e = doc.toObject ? doc.toObject() : { ...doc };
+          return formatEvent({
+            id: String(e._id),
+            name: e.title || e.name,
+            date: e.date ? new Date(e.date).toISOString().split('T')[0] : "À venir",
+            time: "20:00",
+            venue: e.location || "Salle Principale",
+            city: e.city || "France",
+            country: "France",
+            latitude: Number(e.latitude),
+            longitude: Number(e.longitude),
+            images: [{ url: e.image || "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=800&q=80" }],
+            url: e.url,
+            description: e.description || "Concert live ajouté par la communauté."
+          });
         });
-      });
+    }
   } catch (err) {
     console.error("Erreur lecture MongoDB :", err.message);
   }
@@ -145,7 +148,10 @@ const CITY_GPS_FALLBACK = {
       const tmPromises = tmQueries.map(async (q) => {
         const url = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${cleanKey}&${q}`;
         try {
-          const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+          const res = await fetch(url, { 
+            headers: { 'Accept': 'application/json' },
+            signal: AbortSignal.timeout(3500)
+          });
           if (res.ok) {
             const d = await res.json();
             return d._embedded?.events || [];
@@ -271,7 +277,7 @@ const CITY_GPS_FALLBACK = {
     const odsPromises = odsQueries.map(async (q) => {
       const url = `https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/evenements-publics-openagenda/records?${q}`;
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
         if (res.ok) {
           const d = await res.json();
           return d.results || [];
