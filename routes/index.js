@@ -1,16 +1,17 @@
-const express = require('express');
+import express from 'express';
+import authRouter from '../module/auth/auth.routes.js';
+import eventsRouter from '../module/events/events.routes.js';
+import usersRouter from '../module/users/users.routes.js';
+
 const router = express.Router();
 
-// On importera les routes des modules ici :
-// const authRouter = require('../module/auth/auth.routes');
-// const eventsRouter = require('../module/events/events.routes');
-
-// router.use('/auth', authRouter);
-// router.use('/events', eventsRouter);
-
-// Gestion de l'erreur 404 (Route non trouvée)
+// Branchement des modules
+router.use('/auth', authRouter);
+router.use('/events', eventsRouter);
+router.use('/users', usersRouter);
+// Gestion de l'erreur 404
 router.use((req, res) => {
-  res.status(404).json({ error: "Route introuvable" });
+  res.status(404).json({ success: false, message: "Route API introuvable" });
 });
 
-module.exports = router;
+export default router;
