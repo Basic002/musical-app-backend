@@ -1,15 +1,21 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
 import session from 'express-session';
 import connectDB from './config/mongoDB.js';
 import router from './routes/index.js';
+import { initializeEventsCache } from './module/events/events.services.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connexion BDD
+// Compression HTTP Gzip/Brotli pour des temps de transfert ultra-rapides (< 100ms)
+app.use(compression());
+
+// Connexion BDD et initialisation du cache d'événements
 connectDB();
+initializeEventsCache();
 
 // Détection de l'environnement de production ou hébergement cloud
 const isProd = process.env.NODE_ENV === 'production' || !!process.env.RENDER;
